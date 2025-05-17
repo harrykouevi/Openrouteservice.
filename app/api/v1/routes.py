@@ -157,7 +157,7 @@ def get_zones(
 
         # Convertir la géométrie GeoJSON en polygone utilisable avec shapely
         isochrone_polygon = shape(geojson["features"][0]["geometry"])
-        #  print(isochrone_polygon)
+        print(isochrone_polygon)
 
         # Convertit le polygone shapely en format GeoJSON (dict)
         geojson_polygon = mapping(isochrone_polygon)
@@ -177,17 +177,19 @@ def get_issues_in_zone(
     radius: int = Query(10000),  # Rayon de recherche en mètres (par défaut 10 km)
 ):
     
-    # auth_header = request.headers.get('Authorization')
-    # token = auth_header.split(' ')[1]
+    auth_header = request.headers.get('Authorization')
+    token = auth_header.split(' ')[1]
 
-    # # Préparer l'en-tête pour la requête vers l'API ORS
-    # headers = {
-    #     "Authorization": f"Bearer {token}",
-    #     "Accept": "application/json"
-    # }
-    # all_issues = get_all_road_issues( lat,lng,radius,headers)
+    # Préparer l'en-tête pour la requête vers l'API ORS
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+    all_issues = get_all_road_issues( lat,lng,radius,headers)
+    print(all_issues)
+    print(os.getenv("ORS_API_KEY"))
 
-    all_issues = get_all_road_issues( lat,lng,radius)
+    # all_issues = get_all_road_issues( lat,lng,radius)
     
     geojson = client.isochrones(
         locations=[[lng, lat]],      # Attention : ORS attend [lon, lat]

@@ -16,7 +16,7 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
             auth_header = request.headers.get("Authorization")
 
             if not auth_header or not auth_header.startswith("Bearer "):
-                return JSONResponse({"detail": "Token manquant ou invalide."}, status_code=401)
+                return JSONResponse({"detail": "8888Token manquant ou invalide."}, status_code=401)
 
             token = auth_header.split(" ")[1]
 

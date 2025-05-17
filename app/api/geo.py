@@ -1,8 +1,8 @@
 from shapely.geometry import  Point
 import openrouteservice
 import os
-from shapely.geometry import  Point, shape, mapping
-from typing import List, Dict
+from shapely.geometry import  Point, shape, mapping , Polygon
+from typing import List, Dict , Union
 
 client = openrouteservice.Client(key=os.getenv("ORS_API_KEY"))
 
@@ -20,8 +20,8 @@ def point_to_polygon(lng: float, lat: float, delta=0.00018):
         [lng - delta, lat - delta]
     ]]
     
-def filter_from_point(data_issue: List[Dict], position: Dict[str, str], radius: int = 1000) -> List[Dict]:
-    
+def _filter_from_point_(data_issue: List[Dict], position: Dict[str, str], radius: int = 1000) -> List[Dict]:
+    print(position)
     geojson = client.isochrones(
         locations=[[position['lng'], position['lat']]],      # Attention : ORS attend [lon, lat]
         range=[radius],              # Rayon en mètres
@@ -47,6 +47,27 @@ def filter_from_point(data_issue: List[Dict], position: Dict[str, str], radius: 
                     "latitude": issue["latitude"],
                     "longitude": issue["longitude"]
                 })
+    return nearby_issues
+
+def filter_from_point(data_issue: List[Dict], polygon:  Union[Polygon, Dict]) -> List[Dict]:
+    # Si le polygone est un dictionnaire GeoJSON, on le transforme
+    if isinstance(polygon, dict):
+        polygon = shape(polygon)
+
+    if not isinstance(polygon, Polygon):
+        raise ValueError("Le paramètre 'polygon' doit être un Polygon ou un GeoJSON valide.")
+
+    nearby_issues = []
+    for issue in data_issue:
+        point = Point(issue["longitude"], issue["latitude"])
+        if polygon.contains(point):
+            nearby_issues.append({
+                "id": issue["id"],
+                "description": issue["description"],
+                "latitude": issue["latitude"],
+                "longitude": issue["longitude"]
+            })
+
     return nearby_issues
     
 
