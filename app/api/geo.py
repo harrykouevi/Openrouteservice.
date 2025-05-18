@@ -52,7 +52,17 @@ def _filter_from_point_(data_issue: List[Dict], position: Dict[str, str], radius
 def filter_from_point(data_issue: List[Dict], polygon:  Union[Polygon, Dict]) -> List[Dict]:
     # Si le polygone est un dictionnaire GeoJSON, on le transforme
     if isinstance(polygon, dict):
-        polygon = shape(polygon)
+        print(polygon)
+      
+        geojson = client.isochrones(
+            locations=[[polygon['lng'], polygon['lat']]],      # Attention : ORS attend [lon, lat]
+            range=[2000],              # Rayon en mètres
+            profile='driving-car',  
+            range_type='distance',       # Type de rayon : distance au lieu du temps
+            units='m'                    # Unité : mètres
+        )
+        # Convertir la géométrie GeoJSON en polygone utilisable avec shapely
+        polygon = shape(geojson["features"][0]["geometry"])
 
     if not isinstance(polygon, Polygon):
         raise ValueError("Le paramètre 'polygon' doit être un Polygon ou un GeoJSON valide.")

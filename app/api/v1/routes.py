@@ -89,6 +89,7 @@ def get_routes(
 
 @router.get("/directions")
 def get_routes(
+    request: Request,
     start: str = Query(..., description="Latitude,Longitude"),
     end: str = Query(..., description="Latitude,Longitude"),
     alternatives: int = 3
@@ -98,10 +99,18 @@ def get_routes(
         latA, lonA = map(float, start.split(","))
         latB, lonB = map(float, end.split(","))
         coords = [(lonA, latA), (lonB, latB)]
+        
+        auth_header = request.headers.get('Authorization')
+        token = auth_header.split(' ')[1]
 
-        all_issues = get_all_road_issues(latA,lonA,1000)
+        # Préparer l'en-tête pour la requête vers l'API ORS
+        headers = { "Authorization": f"Bearer {token}","Accept": "application/json"}
+      
+        all_issues = get_all_road_issues(latA,lonA,1000,headers)
+        
         # Liste des incidents dans le polygone isochrone 
         nearby_issues = filter_from_point(all_issues,{'lat': latA,'lng': lonA,})
+        print(nearby_issues)
         # Liste des incidents à éviter
         points_to_avoid = extract_road_issue_points(nearby_issues)
         # geojson des incidents à éviter

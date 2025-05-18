@@ -16,7 +16,8 @@ app.add_middleware(
 # Ajout de ton middleware personnalisé
 # Activation du middleware uniquement sur certaines routes
 app.add_middleware(BearerTokenMiddleware, protected_paths=[
-   "/api/v1/road-issues"
+   "/api/v1/road-issues",
+   "/api/v1/directions"
 ])
  # "/api/v1/issues-in-zone"
 app.include_router(v1_router, prefix="/api/v1")
